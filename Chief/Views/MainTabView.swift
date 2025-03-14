@@ -1,50 +1,61 @@
 import SwiftUI
 
+enum Tab: Int {
+    case home = 0
+    case addIngredient = 1
+    case subscriptions = 2
+}
+
 struct MainTabView: View {
-    @State private var selectedTab = 0 // Track current tab
-    @State private var transitionDirection: Edge = .trailing // Track swipe direction
+    @State private var selectedTab: Tab = .home
+    @State private var transitionDirection: Edge = .trailing
 
     var body: some View {
         ZStack {
             TabView(selection: $selectedTab) {
                 HomeView()
-                    .tag(0)
                     .tabItem {
                         Image(systemName: "house")
                         Text("Home")
                     }
+                    .tag(Tab.home)
+                    .environment(\.selectedTab, $selectedTab) // Pass selectedTab
+
                 AddIngredientView()
-                    .tag(1)
                     .tabItem {
                         Image(systemName: "plus")
                         Text("Add Ingredient")
                     }
+                    .tag(Tab.addIngredient)
+                    .environment(\.selectedTab, $selectedTab)
+
                 SubscriptionView()
-                    .tag(2)
                     .tabItem {
                         Image(systemName: "star")
                         Text("Subscriptions")
                     }
+                    .tag(Tab.subscriptions)
+                    .environment(\.selectedTab, $selectedTab)
             }
-            .transition(.move(edge: transitionDirection)) // Apply slide transition
-            .animation(.easeInOut(duration: 0.3), value: selectedTab) // Smooth animation
-            
+            .transition(.move(edge: transitionDirection))
+            .animation(.easeInOut(duration: 0.3), value: selectedTab)
+
             .gesture(
                 DragGesture()
                     .onEnded { value in
                         let swipeThreshold: CGFloat = 50
                         if value.translation.width < -swipeThreshold {
-                            if selectedTab < 2 {
-                                transitionDirection = .trailing // Slide left
+                            if selectedTab.rawValue < 2 {
+                                transitionDirection = .trailing
                                 withAnimation {
-                                    selectedTab += 1
+                                    selectedTab = Tab(rawValue: selectedTab.rawValue + 1) ?? .subscriptions
                                 }
                             }
                         } else if value.translation.width > swipeThreshold {
-                            if selectedTab > 0 {
-                                transitionDirection = .leading // Slide right
+                            if selectedTab.rawValue > 0 {
+                                transitionDirection = .leading
                                 withAnimation {
-                                    selectedTab -= 1
+                                    selectedTab = Tab(rawValue: selectedTab.rawValue - 1) ?? .home
                                 }
                             }
                         }
@@ -69,6 +80,19 @@ struct MainTabView: View {
         }
     }
 }
+
+// Custom environment key for selectedTab
+private struct SelectedTabKey: EnvironmentKey {
+    static let defaultValue: Binding<Tab> = .constant(.home)
+}
+
+extension EnvironmentValues {
+    var selectedTab: Binding<Tab> {
+        get { self[SelectedTabKey.self] }
+        set { self[SelectedTabKey.self] = newValue }
+    }
+}
+
 
 
 
