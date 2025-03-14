@@ -20,11 +20,12 @@ struct AddIngredientView: View {
                             .foregroundColor(.gray)
                         
                         TextField("Search ingredients...", text: $ingredientInput)
-                            .onChange(of: ingredientInput) { newValue in
+                            .onChange(of: ingredientInput) { newValue, _ in
                                 viewModel.searchText = newValue
                                 viewModel.search()
-                                isSearching = !newValue.isEmpty
+                                isSearching = !(newValue.isEmpty && viewModel.filteredIngredients.isEmpty)
                             }
+
                         
                         if !ingredientInput.isEmpty {
                             Button(action: {
@@ -53,10 +54,16 @@ struct AddIngredientView: View {
                                         if !ingredients.contains(ingredient.term) {
                                             ingredients.append(ingredient.term)
                                         }
+                                        // Clear search immediately without delay.
                                         ingredientInput = ""
+                                        viewModel.searchText = ""
+                                        viewModel.filteredIngredients = []
                                         isSearching = false
                                     })
+
+
                                 }
+
                             }
                             .padding()
                         }
@@ -175,43 +182,3 @@ struct SelectedIngredientCard: View {
         .cornerRadius(12)
     }
 }
-
-// View Model for Ingredients
-class IngredientViewModel: ObservableObject {
-    @Published var allIngredients: [Ingredient] = []
-    @Published var filteredIngredients: [Ingredient] = []
-    @Published var searchText: String = ""
-    
-    init() {
-        loadIngredients()
-    }
-    
-    func loadIngredients() {
-        guard let url = Bundle.main.url(forResource: "ing", withExtension: "json") else {
-            print("JSON file not found")
-            return
-        }
-        
-        do {
-            let data = try Data(contentsOf: url)
-            let ingredients = try JSONDecoder().decode([Ingredient].self, from: data)
-            
-            DispatchQueue.main.async {
-                self.allIngredients = ingredients
-                self.filteredIngredients = ingredients
-            }
-        } catch {
-            print("Error loading ingredients: \(error)")
-        }
-    }
-    
-    func search() {
-        if searchText.isEmpty {
-            filteredIngredients = []
-        } else {
-            filteredIngredients = allIngredients.filter { $0.searchValue.localizedCaseInsensitiveContains(searchText) }
-                .sorted(by: { $0.useCount > $1.useCount })
-        }
-    }
-}
-
