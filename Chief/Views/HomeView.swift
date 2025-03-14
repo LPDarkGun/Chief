@@ -38,6 +38,7 @@ struct HomeView: View {
                                     .font(.system(size: 42, weight: .black, design: .rounded))
                                     .foregroundColor(.white)
                                 
+                                
                                 Text("Elevate your culinary journey")
                                     .font(.subheadline)
                                     .fontWeight(.medium)
@@ -67,9 +68,23 @@ struct HomeView: View {
                         .padding(.vertical, 16)
                     }
                     
-                    // Existing content
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 16) {
+                            ForEach(recipeManager.recipes) { recipe in
+                                NavigationLink(destination: RecipeDetailView(recipe: recipe)) {
+                                    RecipeCard(recipe: recipe)
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                    
+                    
                     SectionHeader(title: "New Recipes", actionTitle: "Explore more")
                         .padding(.top, 8)
+                    
+                    Spacer(minLength: 16)
                     
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 16) {
