@@ -1,163 +1,155 @@
 import SwiftUI
 
 struct HomeView: View {
+    @StateObject var recipeManager = RecipeManager()
+    
     var body: some View {
-        // Load all recipes from your JSON
-        let allRecipes = DataLoader.loadRecipes()
-        
-        // Pick the first recipe (or fall back to a placeholder if none found)
-        let featuredRecipe = allRecipes.first ?? Recipe(
-            Id: 0,
-            Title: "No Recipe Found",
-            Ingredients: [],
-            Instructions: "No instructions available.",
-            Image_Name: "miso-butter-roast-chicken-acorn-squash-panzanella",
-            Cleaned_Ingredients: []
-        )
-        
-        // Get 3 featured recipes for the carousel
-        let featuredRecipes = Array(allRecipes.prefix(3))
-        
-        return NavigationView {
+        NavigationView {
             ScrollView {
-                VStack(spacing: 0) {
-                    // Hero Section
-                    ZStack(alignment: .bottomLeading) {
-                        // Background Image
-                        ZStack {
-                            Rectangle()
-                                .fill(Color(UIColor.systemBackground).opacity(0.3))
-                                .frame(height: 300)
-                            
-                            Image(systemName: "photo.fill")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 80)
-                                .foregroundColor(.gray)
-                                .opacity(0.5)
-                        }
-                        .overlay(
-                            LinearGradient(
-                                gradient: Gradient(colors: [Color.black.opacity(0.6), Color.black.opacity(0)]),
-                                startPoint: .bottom,
-                                endPoint: .top
-                            )
-                        )
-                        
-                        // Hero Text
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Discover Delicious Recipes")
-                                .font(.system(size: 28, weight: .bold))
-                                .foregroundColor(.white)
-                            
-                            Text("Find the perfect meal for any occasion")
-                                .font(.subheadline)
-                                .foregroundColor(.white.opacity(0.9))
-                                .padding(.bottom, 8)
-                            
-                            NavigationLink(destination: RecipeDetailView(recipe: featuredRecipe)) {
-                                Text("Featured Recipe: \(featuredRecipe.Title)")
-                                    .font(.headline)
-                                    .foregroundColor(.white)
-                                    .padding(.vertical, 10)
-                                    .padding(.horizontal, 20)
-                                    .background(Color.blue)
-                                    .cornerRadius(25)
+                VStack(alignment: .leading, spacing: 24) {
+                    Text("Mr.Chief")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .padding(.horizontal)
+                        .padding(.top)
+                    
+                    SectionHeader(title: "New Recipes", actionTitle: "Explore more")
+                    
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 16) {
+                            ForEach(recipeManager.recipes) { recipe in
+                                NavigationLink(destination: RecipeDetailView(recipe: recipe)) {
+                                    RecipeCard(recipe: recipe)
+                                }
+                                .buttonStyle(PlainButtonStyle())
                             }
                         }
-                        .padding(.horizontal, 20)
-                        .padding(.bottom, 20)
+                        .padding(.horizontal)
                     }
                     
-                    // Categories Section
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text("Popular Categories")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .padding(.top, 20)
-                        
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 15) {
-                                ForEach(["Breakfast", "Lunch", "Dinner", "Dessert", "Vegetarian"], id: \.self) { category in
-                                    VStack {
-                                        Circle()
-                                            .fill(Color.blue.opacity(0.2))
-                                            .frame(width: 70, height: 70)
-                                            .overlay(
-                                                Image(systemName: categoryIcon(for: category))
-                                                    .font(.system(size: 30))
-                                                    .foregroundColor(.blue)
-                                            )
-                                        
-                                        Text(category)
-                                            .font(.caption)
-                                            .foregroundColor(.primary)
-                                    }
-                                }
-                            }
-                            .padding(.horizontal)
-                        }
-                        
-                        // Featured Recipes Section
-                        Text("Featured Recipes")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .padding(.top, 10)
-                        
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 15) {
-                                ForEach(featuredRecipes) { recipe in
-                                    NavigationLink(destination: RecipeDetailView(recipe: recipe)) {
-                                        VStack(alignment: .leading) {
-                                            // Recipe thumbnail
-                                            Rectangle()
-                                                .fill(Color.gray.opacity(0.3))
-                                                .frame(width: 150, height: 150)
-                                                .cornerRadius(10)
-                                                .overlay(
-                                                    Image(systemName: "fork.knife")
-                                                        .font(.system(size: 40))
-                                                        .foregroundColor(.gray)
-                                                )
-                                            
-                                            Text(recipe.Title)
-                                                .font(.headline)
-                                                .foregroundColor(.primary)
-                                                .lineLimit(2)
-                                                .frame(width: 150, alignment: .leading)
-                                            
-                                            Text("\(recipe.Cleaned_Ingredients.count) ingredients!")
-                                                .font(.caption)
-                                                .foregroundColor(.secondary)
-                                        }
-                                    }
-                                }
-                            }
-                            .padding(.horizontal)
-                        }
-                    }
+                    Spacer(minLength: 80)
                 }
+                .padding(.vertical)
+                .background(Color.black.edgesIgnoringSafeArea(.all))
             }
-            .edgesIgnoringSafeArea(.top)
-            .navigationBarHidden(true)
+            .background(Color.black.edgesIgnoringSafeArea(.all))
         }
+        .navigationViewStyle(StackNavigationViewStyle())
     }
+}
+
+struct RecipeCard: View {
+    var recipe: Recipe
     
-    // Helper function to determine icon for each category
-    private func categoryIcon(for category: String) -> String {
-        switch category {
-        case "Breakfast":
-            return "sunrise"
-        case "Lunch":
-            return "sun.max"
-        case "Dinner":
-            return "moon.stars"
-        case "Dessert":
-            return "birthday.cake"
-        case "Vegetarian":
-            return "leaf"
-        default:
-            return "fork.knife"
+    var body: some View {
+        ZStack(alignment: .bottomLeading) {
+            if let uiImage = UIImage(named: recipe.Image_Name) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 200, height: 250)
+                    .clipped()
+            } else {
+                ZStack {
+                    Color.white
+                    Image(systemName: "fork.knife")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 50, height: 50)
+                        .foregroundColor(.black.opacity(0.6))
+                }
+                .frame(width: 200, height: 250)
+                .cornerRadius(16)
+            }
+
+            LinearGradient(
+                gradient: Gradient(colors: [Color.black.opacity(0.6), Color.clear]),
+                startPoint: .bottom,
+                endPoint: .center
+            )
+            .frame(width: 200, height: 250)
+            .cornerRadius(16)
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text("NEW")
+                    .font(.caption)
+                    .fontWeight(.bold)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color.white)
+                    .foregroundColor(.black)
+                    .cornerRadius(8)
+                
+                Spacer()
+                
+                Text(recipe.Title)
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .padding(.bottom, 10)
+                    .lineLimit(2)
+            }
+            .padding()
+        }
+        .frame(width: 200, height: 250)
+        .cornerRadius(16)
+    }
+}
+
+struct SectionHeader: View {
+    var title: String
+    var actionTitle: String
+    
+    var body: some View {
+        HStack {
+            Text(title)
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+            
+            Spacer()
+            
+            Button(action: {}) {
+                Text(actionTitle)
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+            }
+        }
+        .padding(.horizontal)
+    }
+}
+
+struct SearchView: View {
+    var body: some View {
+        ZStack {
+            Color.black.edgesIgnoringSafeArea(.all)
+            Text("Find Recipes")
+                .foregroundColor(.white)
         }
     }
+}
+
+struct CartView: View {
+    var body: some View {
+        ZStack {
+            Color.black.edgesIgnoringSafeArea(.all)
+            Text("Shopping List")
+                .foregroundColor(.white)
+        }
+    }
+}
+
+struct FavoritesView: View {
+    var body: some View {
+        ZStack {
+            Color.black.edgesIgnoringSafeArea(.all)
+            Text("Saved Recipes")
+                .foregroundColor(.white)
+        }
+    }
+}
+
+#Preview {
+    HomeView()
 }
