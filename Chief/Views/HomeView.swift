@@ -14,7 +14,7 @@ struct HomeView: View {
                             Image("hero-background")
                                 .resizable()
                                 .scaledToFill()
-                                .frame(height: 380)
+                                .frame(height: 300)
                                 .clipped()
                                 .overlay(
                                     LinearGradient(
@@ -53,7 +53,7 @@ struct HomeView: View {
                         .padding(.horizontal, 24)
                         .padding(.bottom, 32)
                     }
-                    .frame(height: 380)
+                    .frame(height: 300)
                     
                     // Category Pills
                     ScrollView(.horizontal, showsIndicators: false) {

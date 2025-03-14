@@ -93,6 +93,10 @@ extension EnvironmentValues {
     }
 }
 
+#Preview {
+    MainTabView()
+}
+
 
 
 

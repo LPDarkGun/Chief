@@ -32,7 +32,7 @@ struct RecipeDetailView: View {
                             Image(recipe.Image_Name)
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
-                                .frame(height: 320)
+                                .frame(height: 250)
                                 .overlay(
                                     Rectangle()
                                         .fill(
@@ -204,6 +204,7 @@ struct RecipeDetailView: View {
                                 .frame(maxWidth: .infinity)
                             }
                         }
+                        .frame(maxWidth: .infinity)
                         .padding(.horizontal)
                         .padding(.vertical, 12)
                         .background(Color(hex: "222222"))
@@ -221,6 +222,7 @@ struct RecipeDetailView: View {
                         }
                         .padding(.horizontal, 20)
                         .padding(.vertical, 24)
+                        .frame(maxWidth: .infinity)
                         .background(Color(hex: "222222"))
                         .cornerRadius(16, corners: [.bottomLeft, .bottomRight])
                     }
@@ -238,6 +240,7 @@ struct RecipeDetailView: View {
                             .padding(.horizontal, 16)
                             .padding(.top, 24)
                         
+                        
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 16) {
                                 ForEach(1...3, id: \.self) { _ in
@@ -246,7 +249,9 @@ struct RecipeDetailView: View {
                             }
                             .padding(.horizontal, 16)
                             .padding(.bottom, 16)
+                            
                         }
+
                     }
                 }
             }
@@ -564,3 +569,5 @@ extension Color {
         .background(Color(hex: "2A2A2A"))
     }
 }
+
+
