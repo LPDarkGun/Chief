@@ -7,7 +7,7 @@ struct HomeView: View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
-                    // Enhanced Hero Section
+                    
                     ZStack(alignment: .bottomLeading) {
                         // Hero Background with Gradient Overlay
                         ZStack(alignment: .center) {

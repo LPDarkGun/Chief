@@ -14,8 +14,7 @@ class RecipeManager: ObservableObject {
                 let decodedRecipes = try JSONDecoder().decode([Recipe].self, from: data)
                 
                 DispatchQueue.main.async {
-                    self.recipes = Array(decodedRecipes.suffix(5)) // ✅ Only keep the last 5 recipes
-                    print("✅ Loaded \(self.recipes.count) latest recipes") // Debugging log
+                    self.recipes = Array(decodedRecipes.suffix(5))
                 }
             } catch {
                 print("❌ Error loading recipes: \(error)")
